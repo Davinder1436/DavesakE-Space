@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { Sky, PointerLockControls } from '@react-three/drei'
+import { Sky } from '@react-three/drei'
 import { Physics } from '@react-three/cannon'
 import { Suspense } from 'react'
 import Player from './components/Player'
@@ -8,12 +8,17 @@ import MapElements from './components/MapElements'
 import './Game.css'
 
 function Game() {
+  const handleCanvasClick = () => {
+    document.body.requestPointerLock()
+  }
+
   return (
     <div className="game-container">
       <Canvas
         shadows
-        camera={{ fov: 75, near: 0.1, far: 1000 }}
+        camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 5, 10] }}
         style={{ background: '#87CEEB' }}
+        onClick={handleCanvasClick}
       >
         <Sky sunPosition={[100, 20, 100]} />
         <ambientLight intensity={0.5} />
@@ -36,8 +41,6 @@ function Game() {
             <MapElements />
           </Physics>
         </Suspense>
-        
-        <PointerLockControls />
       </Canvas>
       
       <div className="crosshair">+</div>
