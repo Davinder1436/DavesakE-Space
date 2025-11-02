@@ -1,8 +1,9 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useSphere } from '@react-three/cannon'
 import { Vector3 } from 'three'
 import usePlayerControls from '../hooks/usePlayerControls'
+import AnimatedCharacter from './AnimatedCharacter'
 
 const SPEED = 15 // Increased speed for more realistic movement
 const JUMP_FORCE = 12
@@ -25,6 +26,9 @@ function Player() {
 
   const characterRef = useRef()
   const cameraRotation = useRef({ yaw: 0, pitch: 0 })
+  const [characterRotation, setCharacterRotation] = useState(0)
+  const [isMoving, setIsMoving] = useState(false)
+  const [isJumping, setIsJumping] = useState(false)
 
   const velocity = useRef([0, 0, 0])
   const position = useRef([0, 5, 0])
@@ -93,10 +97,17 @@ function Player() {
       rotatedDirection.z
     )
 
+    // Check if player is moving
+    const moving = forward || backward || left || right
+    setIsMoving(moving)
+    
+    // Check if player is jumping
+    setIsJumping(Math.abs(velocity.current[1]) > 0.5)
+
     // Rotate character to face movement direction
-    if (characterRef.current && (forward || backward || left || right)) {
+    if (moving) {
       const angle = Math.atan2(rotatedDirection.x, rotatedDirection.z)
-      characterRef.current.rotation.y = angle
+      setCharacterRotation(angle)
     }
 
     // Jump logic
@@ -124,44 +135,13 @@ function Player() {
 
   return (
     <group ref={ref}>
-      {/* Visible character model */}
-      <group ref={characterRef}>
-        {/* Body */}
-        <mesh position={[0, 0.9, 0]} castShadow>
-          <boxGeometry args={[0.6, 1.2, 0.3]} />
-          <meshStandardMaterial color="#4a90e2" />
-        </mesh>
-        
-        {/* Head */}
-        <mesh position={[0, 1.7, 0]} castShadow>
-          <boxGeometry args={[0.4, 0.4, 0.4]} />
-          <meshStandardMaterial color="#ffdbac" />
-        </mesh>
-        
-        {/* Left Arm */}
-        <mesh position={[-0.45, 0.8, 0]} castShadow>
-          <boxGeometry args={[0.2, 0.8, 0.2]} />
-          <meshStandardMaterial color="#4a90e2" />
-        </mesh>
-        
-        {/* Right Arm */}
-        <mesh position={[0.45, 0.8, 0]} castShadow>
-          <boxGeometry args={[0.2, 0.8, 0.2]} />
-          <meshStandardMaterial color="#4a90e2" />
-        </mesh>
-        
-        {/* Left Leg */}
-        <mesh position={[-0.2, 0.1, 0]} castShadow>
-          <boxGeometry args={[0.2, 0.8, 0.2]} />
-          <meshStandardMaterial color="#2c3e50" />
-        </mesh>
-        
-        {/* Right Leg */}
-        <mesh position={[0.2, 0.1, 0]} castShadow>
-          <boxGeometry args={[0.2, 0.8, 0.2]} />
-          <meshStandardMaterial color="#2c3e50" />
-        </mesh>
-      </group>
+      {/* Animated character model */}
+      <AnimatedCharacter 
+        position={[0, -0.5, 0]} 
+        rotation={characterRotation}
+        isMoving={isMoving}
+        isJumping={isJumping}
+      />
     </group>
   )
 }

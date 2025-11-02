@@ -10,7 +10,11 @@ function Ground() {
   return (
     <mesh ref={ref} receiveShadow>
       <planeGeometry args={[100, 100]} />
-      <meshStandardMaterial color="#90EE90" /> {/* Light green grass color */}
+      <meshPhongMaterial 
+        color="#cbcbcb" 
+        depthWrite={false}
+        shininess={10}
+      />
     </mesh>
   )
 }
